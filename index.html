@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ЛР №8 — Алюміній та його сполуки</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0e14}
+#app{width:100vw;height:100vh;display:flex;flex-direction:column;font-family:'Segoe UI',Arial,sans-serif}
+
+/* LOGIN */
+#loginWrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0e14;z-index:99}
+.lbox{background:#141e2a;border:1px solid #2a3a50;border-radius:16px;padding:36px 40px;width:440px;display:flex;flex-direction:column;gap:18px}
+.lbox h1{font-size:22px;font-weight:700;color:#fff;text-align:center;line-height:1.3}
+.lbox p{font-size:14px;color:#6888a0;text-align:center;margin-top:-10px}
+.lbox label{font-size:14px;color:#90aabf;font-weight:600}
+.lbox input{padding:12px 16px;border-radius:10px;border:1px solid #2a3a50;background:#0a0e14;color:#fff;font-size:15px;outline:none;transition:border .15s}
+.lbox input:focus{border-color:#5090d0}
+.lbox input::placeholder{color:#334455}
+.sbtn{padding:13px;border-radius:10px;background:#2060a0;border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s}
+.sbtn:hover{background:#3070c0}
+
+/* LAB */
+#lab{display:none;flex-direction:column;width:100vw;height:100vh}
+.topbar{background:#0c1420;border-bottom:1px solid #182030;padding:8px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar .ttl{font-size:15px;font-weight:700;color:#c8e0f8}
+.topbar .ntag{font-size:13px;color:#5878a0}
+.topbar .ntag b{color:#88b0d8}
+.tabrow{display:flex;gap:8px;padding:8px 20px 0;background:#0c1420;flex-shrink:0}
+.tab{padding:9px 22px;border-radius:9px 9px 0 0;border:1px solid #182030;border-bottom:none;background:#0a0e14;color:#4a6070;cursor:pointer;font-size:14px;font-weight:700;transition:all .15s}
+.tab.on{background:#141e2a;color:#c8e0f8;border-color:#2a4060}
+.panel{display:none;flex-direction:column;flex:1;background:#141e2a;min-height:0;overflow:hidden}
+.panel.on{display:flex}
+.chips{display:flex;gap:8px;padding:10px 18px 0;flex-shrink:0;flex-wrap:wrap}
+.chip{padding:7px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;border:2px solid transparent;transition:all .15s;user-select:none}
+.chip-naoh{background:#0e2040;color:#70c0ff;border-color:#1a5090}
+.chip-hcl{background:#281808;color:#ffb040;border-color:#8a4a10}
+.chip-hno3{background:#280a08;color:#ff7060;border-color:#8a2010}
+.chip.on{transform:scale(1.07);box-shadow:0 0 12px currentColor}
+.cvwrap{flex:1;position:relative;min-height:0;margin:8px 18px}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap;padding:6px 18px;flex-shrink:0}
+.btn{padding:9px 15px;border-radius:9px;border:1px solid #1e3050;background:#0e1828;color:#7898b0;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;white-space:nowrap;user-select:none}
+.btn:hover:not(.dis){background:#162038;color:#c8e0f8}
+.btn.done{background:#0a2218;color:#50c880;border-color:#1a5030}
+.btn.cur{background:#0a1e38;color:#70b8ff;border-color:#1a4080;box-shadow:0 0 8px rgba(50,130,255,.35)}
+.btn.dis{opacity:.22;cursor:not-allowed}
+.obs{margin:4px 18px 8px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;line-height:1.7;border:1px solid;flex-shrink:0}
+.obs-i{background:#06121e;color:#70b8ff;border-color:#1a4080}
+.obs-s{background:#061812;color:#50c880;border-color:#185038}
+.obs-w{background:#1a1004;color:#f0c830;border-color:#604810}
+.obs-d{background:#1e0606;color:#ff7878;border-color:#702020}
+.fml{display:inline-block;font-family:'Courier New',monospace;font-size:13px;font-weight:700;background:#060c14;padding:6px 14px;border-radius:6px;color:#70d0ff;border:1px solid #1030508;margin-top:6px}
+
+/* Panel 2 specific chips */
+.chip-alcl3{background:#18200a;color:#a0e060;border-color:#486018}
+.chip-nh4oh{background:#180820;color:#e080ff;border-color:#602080}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="lbox">
+    <h1>Лабораторна робота №8</h1>
+    <p>Дослідження властивостей алюмінію та його сполук</p>
+    <label>Прізвище та ім'я студента</label>
+    <input id="ni" type="text" placeholder="Іваненко Олег Петрович">
+    <label>Група</label>
+    <input id="gi" type="text" placeholder="ХБ-21">
+    <button class="sbtn" onclick="go()">Розпочати роботу →</button>
+  </div>
+</div>
+
+<!-- LAB -->
+<div id="lab">
+  <div class="topbar">
+    <span class="ttl">ЛР №8 — Алюміній та його сполуки</span>
+    <span class="ntag">Студент: <b id="nt"></b> &nbsp;|&nbsp; Група: <b id="gt"></b></span>
+  </div>
+  <div class="tabrow">
+    <div class="tab on" onclick="showP('p1')">Дослід 1: Властивості Al</div>
+    <div class="tab"    onclick="showP('p2')">Дослід 2: Al(OH)₃ — амфотерність</div>
+  </div>
+
+  <!-- PANEL 1: три пробірки з Al + реагент -->
+  <div class="panel on" id="p1">
+    <div class="chips">
+      <div class="chip chip-naoh" id="cn" onclick="pickR('naoh')">NaOH — Луг</div>
+      <div class="chip chip-hcl"  id="ch" onclick="pickR('hcl')">HCl — Хлоридна кислота</div>
+      <div class="chip chip-hno3" id="cn3" onclick="pickR('hno3')">HNO₃ конц. — Нітратна кислота</div>
+    </div>
+    <div class="cvwrap"><canvas id="c1"></canvas></div>
+    <div class="btnrow" id="br1"></div>
+    <div class="obs obs-i" id="o1">Оберіть реагент вище, щоб розпочати дослід.</div>
+  </div>
+
+  <!-- PANEL 2: Al(OH)3 осад, луг або кислота -->
+  <div class="panel" id="p2">
+    <div class="chips">
+      <div class="chip chip-alcl3" id="calcl" onclick="pickR2('alcl3')">AlCl₃ → Al(OH)₃ + NaOH</div>
+      <div class="chip chip-alcl3" id="calcl2" onclick="pickR2('alcl3hcl')">AlCl₃ → Al(OH)₃ + HCl</div>
+    </div>
+    <div class="cvwrap"><canvas id="c2"></canvas></div>
+    <div class="btnrow" id="br2"></div>
+    <div class="obs obs-i" id="o2">Оберіть варіант досліду вище.</div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════
+var REAGENTS={
+  naoh:{
+    name:'NaOH (луг)',chip:'cn',
+    steps:['1. Покласти Al у пробірку','2. Додати NaOH','3. Спостерігати реакцію','4. Записати спостереження'],
+    obs:[
+      'Гранула алюмінію у чистій пробірці. Алюміній — сріблясто-білий метал, вкритий тонким шаром Al₂O₃. Крок 2: додайте розчин лугу NaOH.',
+      'Луг NaOH додано. Спочатку реакція йде повільно — луг розчиняє оксидну плівку Al₂O₃. Крок 3: спостерігайте реакцію.',
+      '<b>Активна реакція!</b> Виділяються бульбашки H₂. Луг реагує безпосередньо з алюмінієм. Гранула поступово розчиняється. Крок 4: запишіть спостереження.',
+      'Реакція завершена. Al повністю розчинився.<br><span class="fml">2Al + 2NaOH + 2H₂O → 2NaAlO₂ + 3H₂↑</span><br>Al — амфотерний метал: реагує з лугами!'
+    ],
+    cls:['obs-i','obs-i','obs-w','obs-s'],
+    waterColor:[60,120,200], bubbles:true, dissolve:true,
+    reagentColor:'rgba(80,140,255,0.55)', reagentLabel:'NaOH (луг)',
+    reactionGas:'H₂↑', fastReaction:true
+  },
+  hcl:{
+    name:'HCl (кислота)',chip:'ch',
+    steps:['1. Покласти Al у пробірку','2. Додати HCl','3. Спостерігати реакцію','4. Записати спостереження'],
+    obs:[
+      'Гранула алюмінію у чистій пробірці. Алюміній легко обробляється та має металічний блиск. Крок 2: додайте розчин хлоридної кислоти HCl.',
+      'Кислота HCl додана. Реакція починається після розчинення оксидної плівки. Крок 3: спостерігайте реакцію.',
+      '<b>Активна реакція!</b> Активне виділення H₂. Гранула активно розчиняється. Розчин залишається прозорим (AlCl₃ розчинний). Крок 4: запишіть.',
+      'Al розчинився у кислоті.<br><span class="fml">2Al + 6HCl → 2AlCl₃ + 3H₂↑</span><br>Al реагує з розведеними кислотами!'
+    ],
+    cls:['obs-i','obs-i','obs-w','obs-s'],
+    waterColor:[255,220,80], bubbles:true, dissolve:true,
+    reagentColor:'rgba(255,200,60,0.45)', reagentLabel:'HCl (кислота)',
+    reactionGas:'H₂↑', fastReaction:true
+  },
+  hno3:{
+    name:'HNO₃ конц.',chip:'cn3',
+    steps:['1. Покласти Al у пробірку','2. Додати конц. HNO₃','3. Спостерігати (пасивація)','4. Записати спостереження'],
+    obs:[
+      'Гранула алюмінію у чистій пробірці. Крок 2: обережно додайте концентровану нітратну кислоту HNO₃.',
+      'Конц. HNO₃ додана. Очікуємо реакцію...',
+      '<b>ПАСИВАЦІЯ!</b> Реакція не відбувається! Концентрована HNO₃ окиснює поверхню Al до щільного шару Al₂O₃, який захищає метал від подальшої реакції. Гранула залишається цілою! Крок 4: запишіть.',
+      'Al пасивований конц. HNO₃.<br><span class="fml">Al + HNO₃(конц.) → Al₂O₃ (пасивація, реакція не йде)</span><br>Явище пасивації: щільний оксид блокує реакцію!'
+    ],
+    cls:['obs-i','obs-i','obs-d','obs-s'],
+    waterColor:[200,80,60], bubbles:false, dissolve:false,
+    reagentColor:'rgba(200,80,60,0.40)', reagentLabel:'HNO₃ конц.',
+    reactionGas:null, fastReaction:false
+  }
+};
+
+var EXP2={
+  alcl3:{
+    name:'AlCl₃ + NH₄OH → осад → NaOH',
+    steps:['1. Налити AlCl₃','2. Додати NH₄OH по краплях','3. Утворення осаду Al(OH)₃','4. Додати надлишок NaOH','5. Спостереження'],
+    obs:[
+      'У пробірці розчин AlCl₃ (безбарвний). Крок 2: додавайте по краплях NH₄OH.',
+      'NH₄OH додається краплями. Починає утворюватись білий драглистий осад. Крок 3: продовжуйте до повного осадження.',
+      '<b>Білий желатинозний осад</b> Al(OH)₃ утворився!<br><span class="fml">AlCl₃ + 3NH₄OH → Al(OH)₃↓ + 3NH₄Cl</span><br>Крок 4: додайте надлишок NaOH.',
+      'NaOH додається до осаду. Спостерігайте що відбувається з осадом. Крок 5: запишіть.',
+      '<b>Осад розчинився!</b> Al(OH)₃ реагує з NaOH.<br><span class="fml">Al(OH)₃ + NaOH → Na[Al(OH)₄]</span><br>Al(OH)₃ — <b>амфотерний гідроксид</b>: розчиняється у лугах!'
+    ],
+    cls:['obs-i','obs-i','obs-w','obs-i','obs-s'],
+    secondReagent:'NaOH', secondColor:[60,120,255]
+  },
+  alcl3hcl:{
+    name:'AlCl₃ + NH₄OH → осад → HCl',
+    steps:['1. Налити AlCl₃','2. Додати NH₄OH по краплях','3. Утворення осаду Al(OH)₃','4. Додати HCl','5. Спостереження'],
+    obs:[
+      'У пробірці розчин AlCl₃ (безбарвний). Крок 2: додавайте по краплях NH₄OH.',
+      'NH₄OH додається краплями. Утворюється білий желатинозний осад Al(OH)₃. Крок 3: продовжуйте до повного осадження.',
+      '<b>Білий желатинозний осад</b> Al(OH)₃ утворився!<br><span class="fml">AlCl₃ + 3NH₄OH → Al(OH)₃↓ + 3NH₄Cl</span><br>Крок 4: додайте HCl.',
+      'HCl додається до осаду. Спостерігайте що відбувається. Крок 5: запишіть.',
+      '<b>Осад розчинився!</b> Al(OH)₃ реагує з HCl.<br><span class="fml">Al(OH)₃ + 3HCl → AlCl₃ + 3H₂O</span><br>Al(OH)₃ — <b>амфотерний гідроксид</b>: розчиняється у кислотах!'
+    ],
+    cls:['obs-i','obs-i','obs-w','obs-i','obs-s'],
+    secondReagent:'HCl', secondColor:[255,180,40]
+  }
+};
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+var reagent=null, exp2=null, st1=0, st2=0;
+var T=0, af1=0, af2=0;
+var parts1=[], parts2=[];
+var rxT1=0, rxT2=0, dissolveT=0;
+
+// ════════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════════
+function go(){
+  var n=document.getElementById('ni').value.trim();
+  if(!n){document.getElementById('ni').style.borderColor='#c44';return;}
+  document.getElementById('nt').textContent=n;
+  document.getElementById('gt').textContent=document.getElementById('gi').value.trim()||'—';
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('lab').style.display='flex';
+  setTimeout(initC1,60);
+}
+
+// ════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════
+function showP(id){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.tab')[id==='p1'?0:1].classList.add('on');
+  if(id==='p1'){cancelAnimationFrame(af2);setTimeout(initC1,40);}
+  else{cancelAnimationFrame(af1);setTimeout(initC2,40);}
+}
+
+// ════════════════════════════════════════════════
+// PICK
+// ════════════════════════════════════════════════
+function pickR(r){
+  reagent=r;st1=0;parts1=[];rxT1=0;dissolveT=0;
+  ['cn','ch','cn3'].forEach(function(id){document.getElementById(id).classList.remove('on')});
+  document.getElementById(REAGENTS[r].chip).classList.add('on');
+  buildBtns1();
+  obs('o1','obs-i',REAGENTS[r].obs[0]);
+}
+
+function pickR2(e){
+  exp2=e;st2=0;parts2=[];rxT2=0;
+  ['calcl','calcl2'].forEach(function(id){document.getElementById(id).classList.remove('on')});
+  document.getElementById(e==='alcl3'?'calcl':'calcl2').classList.add('on');
+  buildBtns2();
+  obs('o2','obs-i',EXP2[e].obs[0]);
+}
+
+// ════════════════════════════════════════════════
+// BUTTONS
+// ════════════════════════════════════════════════
+function buildBtns1(){
+  if(!reagent)return;
+  var row=document.getElementById('br1');row.innerHTML='';
+  REAGENTS[reagent].steps.forEach(function(lbl,i){
+    var d=document.createElement('div');
+    d.className='btn'+(i===0?' cur':' dis');
+    d.id='b1_'+(i+1);d.textContent=(i+1)+'. '+lbl;
+    d.onclick=(function(n){return function(){s1(n);};})(i+1);
+    row.appendChild(d);
+  });
+}
+function buildBtns2(){
+  if(!exp2)return;
+  var row=document.getElementById('br2');row.innerHTML='';
+  EXP2[exp2].steps.forEach(function(lbl,i){
+    var d=document.createElement('div');
+    d.className='btn'+(i===0?' cur':' dis');
+    d.id='b2_'+(i+1);d.textContent=(i+1)+'. '+lbl;
+    d.onclick=(function(n){return function(){s2(n);};})(i+1);
+    row.appendChild(d);
+  });
+}
+function setB1(n){
+  var total=REAGENTS[reagent].steps.length;
+  for(var i=1;i<=total;i++){var el=document.getElementById('b1_'+i);if(el)el.className='btn'+(i<n?' done':i===n?' cur':' dis');}
+}
+function setB2(n){
+  var total=EXP2[exp2].steps.length;
+  for(var i=1;i<=total;i++){var el=document.getElementById('b2_'+i);if(el)el.className='btn'+(i<n?' done':i===n?' cur':' dis');}
+}
+function obs(id,cls,html){var e=document.getElementById(id);e.className='obs '+cls;e.innerHTML=html;}
+
+// ════════════════════════════════════════════════
+// STEPS
+// ════════════════════════════════════════════════
+function s1(n){
+  if(!reagent){obs('o1','obs-w','Спочатку оберіть реагент!');return;}
+  if(n!==st1+1){obs('o1','obs-w','Виконуйте кроки по порядку. Зараз крок '+(st1+1)+'.');return;}
+  st1=n;
+  var total=REAGENTS[reagent].steps.length;
+  if(n<total)setB1(n+1);else setB1(total+1);
+  if(n===3){rxT1=Date.now();parts1=[];}
+  if(n===3&&REAGENTS[reagent].dissolve)dissolveT=Date.now();
+  obs('o1',REAGENTS[reagent].cls[n-1],REAGENTS[reagent].obs[n-1]);
+}
+function s2(n){
+  if(!exp2){obs('o2','obs-w','Спочатку оберіть варіант!');return;}
+  if(n!==st2+1){obs('o2','obs-w','Виконуйте кроки по порядку. Зараз крок '+(st2+1)+'.');return;}
+  st2=n;
+  var total=EXP2[exp2].steps.length;
+  if(n<total)setB2(n+1);else setB2(total+1);
+  if(n===3)rxT2=Date.now();
+  obs('o2',EXP2[exp2].cls[n-1],EXP2[exp2].obs[n-1]);
+}
+
+// ════════════════════════════════════════════════
+// CANVAS INIT
+// ════════════════════════════════════════════════
+function fitCV(cv){cv.width=cv.parentElement.clientWidth;cv.height=cv.parentElement.clientHeight;}
+function initC1(){
+  cancelAnimationFrame(af1);
+  var cv=document.getElementById('c1');if(!cv)return;fitCV(cv);
+  (function loop(){T+=0.018;draw1(cv.getContext('2d'),cv.width,cv.height);af1=requestAnimationFrame(loop);})();
+}
+function initC2(){
+  cancelAnimationFrame(af2);
+  var cv=document.getElementById('c2');if(!cv)return;fitCV(cv);
+  (function loop(){T+=0.018;draw2(cv.getContext('2d'),cv.width,cv.height);af2=requestAnimationFrame(loop);})();
+}
+
+// ════════════════════════════════════════════════
+// COMMON DRAW
+// ════════════════════════════════════════════════
+function drawBg(ctx,W,H){ctx.fillStyle='#090d16';ctx.fillRect(0,0,W,H);}
+function drawBench(ctx,W,H){
+  ctx.fillStyle='#1e1408';ctx.fillRect(0,H-68,W,68);
+  ctx.fillStyle='#2e2010';ctx.fillRect(0,H-72,W,6);
+}
+
+// Realistic upright test tube: cx=centerX, ty=topY(open), th=height
+function drawTube(ctx,cx,ty,tw,th,contents){
+  var tx=cx-tw/2, r=tw/2, botY=ty+th;
+  ctx.save();
+
+  function clipInside(){
+    ctx.beginPath();
+    ctx.moveTo(tx+2,ty);ctx.lineTo(tx+2,botY);
+    ctx.arc(cx,botY,r-2,Math.PI,0,true);
+    ctx.lineTo(tx+tw-2,ty);ctx.closePath();
+  }
+
+  // Fill contents bottom-up
+  if(contents){
+    contents.forEach(function(layer){
+      var lyTop=ty+th*(1-layer.fillTo);
+      ctx.save();clipInside();ctx.clip();
+      ctx.fillStyle=layer.color;
+      ctx.fillRect(tx+2,lyTop,tw-4,botY-lyTop+r);
+      if(layer.shimmer){
+        ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(tx+3,lyTop+1);ctx.lineTo(tx+tw-3,lyTop+1);ctx.stroke();
+      }
+      ctx.restore();
+    });
+  }
+
+  // Glass walls
+  ctx.strokeStyle='rgba(175,215,238,0.65)';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(tx,ty+3);ctx.lineTo(tx,botY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(tx+tw,ty+3);ctx.lineTo(tx+tw,botY);ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,botY,r,Math.PI,0,true);ctx.stroke();
+  ctx.strokeStyle='rgba(230,248,255,0.28)';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(tx+4,ty+10);ctx.lineTo(tx+4,botY-10);ctx.stroke();
+  ctx.strokeStyle='rgba(165,210,232,0.55)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(tx-2,ty);ctx.lineTo(tx+tw+2,ty);ctx.stroke();
+  ctx.strokeStyle='rgba(165,210,232,0.25)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.ellipse(cx,ty,r+2,5,0,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+}
+
+// Al granule — irregular polygon, silvery
+function drawAlGranule(ctx,cx,cy,scale,oxideFrac){
+  scale=scale||1;oxideFrac=oxideFrac||0;
+  ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
+  var pts=[[0,-14],[8,-10],[13,-3],[12,6],[6,13],[-2,14],[-9,10],[-13,3],[-12,-6],[-6,-11]];
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.closePath();
+  var baseR=210,baseG=215,baseB=220;
+  var oxR=180,oxG=180,oxB=175;
+  var r2=Math.round(baseR+(oxR-baseR)*oxideFrac);
+  var g2=Math.round(baseG+(oxG-baseG)*oxideFrac);
+  var b2=Math.round(baseB+(oxB-baseB)*oxideFrac);
+  ctx.fillStyle='rgb('+r2+','+g2+','+b2+')';ctx.fill();
+  if(oxideFrac<0.9){
+    ctx.save();ctx.clip();ctx.globalAlpha=0.55*(1-oxideFrac);
+    ctx.fillStyle='rgba(245,248,255,0.9)';
+    ctx.beginPath();ctx.ellipse(-4,-5,6,4,0,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  ctx.strokeStyle='rgba(255,255,255,'+(0.18*(1-oxideFrac))+')';ctx.lineWidth=0.8;ctx.stroke();
+  ctx.restore();
+}
+
+function drawDropper(ctx,x,y,col,lbl){
+  ctx.save();
+  ctx.fillStyle=col;ctx.fillRect(x-11,y,24,42);
+  ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1;ctx.strokeRect(x-11,y,24,42);
+  ctx.fillStyle=col;ctx.fillRect(x-5,y-15,12,17);
+  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.strokeRect(x-5,y-15,12,17);
+  ctx.fillStyle='rgba(255,255,255,0.72)';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+  ctx.fillText(lbl,x+1,y+26);ctx.restore();
+}
+
+// Bubbles helper
+function addBubbles(parts,cx,botArea,w,rate,vig,rSize){
+  if(Math.random()<rate){
+    parts.push({x:cx+(Math.random()-0.5)*w,y:botArea+Math.random()*15,
+      vx:(Math.random()-0.5)*vig*0.4,vy:-(0.4+Math.random()*vig*0.7),
+      r:rSize*(0.5+Math.random()*0.5),a:0.88});
+  }
+}
+function drawBubbles(ctx,parts,minY){
+  for(var i=parts.length-1;i>=0;i--){
+    var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.a-=0.013;
+    if(p.a>0&&p.y>minY){
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.strokeStyle='rgba(180,235,255,'+p.a.toFixed(2)+')';ctx.lineWidth=0.85;ctx.stroke();
+    }
+    if(p.a<=0||p.y<minY)parts.splice(i,1);
+  }
+}
+
+// ════════════════════════════════════════════════
+// DRAW 1: три пробірки з Al
+// ════════════════════════════════════════════════
+function draw1(ctx,W,H){
+  drawBg(ctx,W,H);drawBench(ctx,W,H);
+
+  // Single tube centered
+  var tw=Math.min(64,W*0.085);
+  var th=Math.min(220,H*0.46);
+  var cx=W/2, ty=H-72-th-18, botY=ty+th;
+
+  if(!reagent){
+    // Show all three tubes as hint
+    var spacing=Math.min(160,W*0.22);
+    var labels=['NaOH','HCl','HNO₃ конц.'];
+    var cols=['rgba(200,225,245,0.22)','rgba(200,225,245,0.22)','rgba(200,225,245,0.22)'];
+    [-1,0,1].forEach(function(offset,i){
+      var tcx=W/2+offset*spacing;
+      drawTube(ctx,tcx,ty,tw,th,[{color:cols[i],fillTo:0.6,shimmer:true}]);
+      drawAlGranule(ctx,tcx,botY-th*0.15,1.0,0.05);
+      ctx.fillStyle='rgba(200,220,240,0.7)';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+      ctx.fillText(labels[i],tcx,ty-14);
+    });
+    ctx.fillStyle='rgba(100,190,255,0.75)';ctx.font='bold 18px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Оберіть реагент вгорі для початку досліду',W/2,H/2-40);
+    return;
+  }
+
+  var R=REAGENTS[reagent];
+
+  // Tube contents
+  var contents=[];
+  if(st1>=2){
+    // All solutions are colorless — only water shimmer visible
+    contents.push({color:'rgba(200,225,245,0.22)',fillTo:0.62,shimmer:true});
+  }
+
+  // Dissolve animation
+  var dissolveFrac=0;
+  if(dissolveT>0&&R.dissolve&&st1>=3){
+    dissolveFrac=Math.min(1,(Date.now()-dissolveT)/8000);
+  }
+
+  drawTube(ctx,cx,ty,tw,th,contents);
+
+  // Al granule — shrinks as it dissolves, gets duller
+  if(st1>=1&&dissolveFrac<1){
+    var grScale=1.0-dissolveFrac*0.85;
+    var grOx=R.dissolve?dissolveFrac*0.7:0.05;
+    drawAlGranule(ctx,cx,botY-th*0.12,grScale,grOx);
+  }
+
+  // Bubbles during reaction
+  if(st1>=3&&R.bubbles){
+    addBubbles(parts1,cx,botY-th*0.22,tw-10,0.18,1.5,3);
+    drawBubbles(ctx,parts1,ty+10);
+  }
+
+  // NO reaction label for passivation
+  if(st1>=3&&!R.bubbles){
+    ctx.fillStyle='rgba(255,100,80,0.9)';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('⊘ Реакція не йде — ПАСИВАЦІЯ',cx,ty-28);
+    ctx.fillStyle='rgba(255,160,140,0.7)';ctx.font='15px sans-serif';
+    ctx.fillText('Al₂O₃ захисна плівка блокує метал',cx,ty-8);
+  }
+
+  // Dropper adding reagent (step 2)
+  if(st1===2){
+    drawDropper(ctx,cx+tw/2+30,ty+18,'rgba(180,210,240,0.55)',R.reagentLabel);
+    ctx.strokeStyle='rgba(180,210,240,0.55)';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(cx+tw/2+22,ty+48);ctx.quadraticCurveTo(cx+tw/2+8,ty+58,cx+6,ty+68);ctx.stroke();
+  }
+
+  // Tube label
+  ctx.fillStyle='rgba(160,200,230,0.7)';ctx.font='13px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Al + '+R.reagentLabel,cx,botY+th*0.08+16);
+}
+
+// ════════════════════════════════════════════════
+// DRAW 2: AlCl3 → Al(OH)3 osad → NaOH or HCl
+// ════════════════════════════════════════════════
+function draw2(ctx,W,H){
+  drawBg(ctx,W,H);drawBench(ctx,W,H);
+
+  var tw=Math.min(60,W*0.08);
+  var th=Math.min(210,H*0.44);
+  var cx=W/2, ty=H-72-th-18, botY=ty+th;
+
+  if(!exp2){
+    // Show two tubes as hint
+    [-1,1].forEach(function(off,i){
+      var tcx=W/2+off*Math.min(140,W*0.18);
+      drawTube(ctx,tcx,ty,tw,th,[{color:'rgba(200,225,245,0.22)',fillTo:0.55,shimmer:true}]);
+      ctx.fillStyle='rgba(180,220,180,0.7)';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
+      ctx.fillText(i===0?'→ + NaOH':'→ + HCl',tcx,ty-14);
+    });
+    ctx.fillStyle='rgba(100,200,160,0.75)';ctx.font='bold 18px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Оберіть варіант досліду вгорі',W/2,H/2-40);
+    return;
+  }
+
+  var E=EXP2[exp2];
+  var elapsed=rxT2>0?(Date.now()-rxT2)/1000:0;
+
+  // Build tube contents layer by layer
+  var contents=[];
+
+  // Base: AlCl3 solution (clear, very faint green)
+  if(st2>=1){
+    contents.push({color:'rgba(200,225,245,0.22)',fillTo:0.60,shimmer:true});
+  }
+  // Precipitate layer (white opaque Jelly)
+  var precipFrac=0;
+  if(st2>=2){precipFrac=Math.min(1,(Date.now()-rxT2+3000)/3000)*0.6;}
+  if(st2>=3)precipFrac=0.18; // fixed precipitate
+  if(precipFrac>0){
+    contents.push({color:'rgba(230,235,230,'+(precipFrac)+')' ,fillTo:precipFrac*0.35,shimmer:false});
+  }
+
+  // Second reagent dissolving the precipitate
+  var dissolveFrac2=0;
+  if(st2>=4){dissolveFrac2=Math.min(1,(Date.now()-rxT2)/6000);}
+
+  // Color when dissolved: NaOH→ clear, HCl→ clear
+  if(st2>=4){
+    // NaOH and HCl solutions are colorless
+    contents.push({color:'rgba(200,225,245,0.22)',fillTo:0.60,shimmer:true});
+  }
+
+  drawTube(ctx,cx,ty,tw,th,contents);
+
+  // Precipitate visual — white jelly
+  if(st2>=3&&st2<4){
+    drawPrecipitate(ctx,cx,botY,tw,th);
+    ctx.fillStyle='rgba(230,235,230,0.85)';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Al(OH)₃ — білий желатинозний осад',cx,ty-18);
+  }
+
+  // Dissolving precipitate
+  if(st2>=4){
+    var df=Math.min(1,(Date.now()-rxT2)/6000);
+    if(df<1){
+      ctx.save();ctx.globalAlpha=1-df;
+      drawPrecipitate(ctx,cx,botY,tw,th);ctx.restore();
+    }
+    if(df>0.5){
+      ctx.fillStyle='rgba(100,220,160,0.85)';ctx.font='bold 15px sans-serif';ctx.textAlign='center';
+      ctx.fillText('Осад розчиняється...',cx,ty-18);
+    }
+  }
+
+  // Dropper for NH4OH (step 2)
+  if(st2===2){
+    drawDropper(ctx,cx+tw/2+30,ty+18,'rgba(200,100,255,0.55)','NH₄OH');
+    ctx.strokeStyle='rgba(200,100,255,0.55)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx+tw/2+22,ty+44);ctx.quadraticCurveTo(cx+tw/2+6,ty+54,cx+4,ty+64);ctx.stroke();
+    // Animated forming precipitate
+    drawFormingPrecipitate(ctx,cx,botY,tw,th,elapsed);
+  }
+
+  // Dropper for second reagent (step 4)
+  if(st2===4){
+    drawDropper(ctx,cx+tw/2+30,ty+18,'rgba(180,210,240,0.55)',E.secondReagent);
+    ctx.strokeStyle='rgba(180,210,240,0.50)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx+tw/2+22,ty+44);ctx.quadraticCurveTo(cx+tw/2+6,ty+54,cx+4,ty+64);ctx.stroke();
+  }
+
+  ctx.fillStyle='rgba(140,200,160,0.7)';ctx.font='13px sans-serif';ctx.textAlign='center';
+  ctx.fillText('AlCl₃ → Al(OH)₃ → '+E.secondReagent,cx,botY+th*0.08+16);
+}
+
+function drawPrecipitate(ctx,cx,botY,tw,th){
+  var ph=th*0.22;
+  ctx.save();
+  // clip to tube interior
+  ctx.beginPath();
+  ctx.moveTo(cx-tw/2+2,botY-ph);ctx.lineTo(cx-tw/2+2,botY);
+  ctx.arc(cx,botY,tw/2-2,Math.PI,0,true);
+  ctx.lineTo(cx+tw/2-2,botY-ph);ctx.closePath();ctx.clip();
+  // Jelly-like white precipitate
+  ctx.fillStyle='rgba(225,232,225,0.88)';
+  ctx.fillRect(cx-tw/2+2,botY-ph,tw-4,ph+tw/2);
+  // texture blobs
+  for(var i=0;i<10;i++){
+    var bx=cx-tw/2+6+((i*37)%(tw-12));
+    var by=botY-ph+4+((i*19)%(ph-8));
+    ctx.fillStyle='rgba(240,245,240,0.55)';
+    ctx.beginPath();ctx.arc(bx,by,3+((i*7)%4),0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawFormingPrecipitate(ctx,cx,botY,tw,th,elapsed){
+  var prog=Math.min(1,elapsed/3);
+  if(prog<=0)return;
+  var ph=th*0.20*prog;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx-tw/2+2,botY-ph);ctx.lineTo(cx-tw/2+2,botY);
+  ctx.arc(cx,botY,tw/2-2,Math.PI,0,true);
+  ctx.lineTo(cx+tw/2-2,botY-ph);ctx.closePath();ctx.clip();
+  ctx.fillStyle='rgba(225,232,225,'+(0.55+prog*0.33)+')';
+  ctx.fillRect(cx-tw/2+2,botY-ph,tw-4,ph+tw/2);
+  ctx.restore();
+}
+
+window.addEventListener('resize',function(){
+  if(document.querySelector('#p1.on')){var cv=document.getElementById('c1');if(cv)fitCV(cv);}
+  else{var cv=document.getElementById('c2');if(cv)fitCV(cv);}
+});
+</script>
+</body>
+</html>
